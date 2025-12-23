@@ -1,0 +1,87 @@
+spring:
+  datasource:
+    type: com.zaxxer.hikari.HikariDataSource
+    # 和 continew-server 一样的 URL 和库名
+    url: jdbc:mysql://${DB_HOST:127.0.0.1}:${DB_PORT:3306}/${DB_NAME:continew_admin}?serverTimezone=Asia/Shanghai&useSSL=true&useUnicode=true&characterEncoding=utf8&rewriteBatchedStatements=true&autoReconnect=true&allowPublicKeyRetrieval=true&nullCatalogMeansCurrent=true
+    username: ${DB_USER:root}
+    password: ${DB_PWD:123456}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      maximum-pool-size: 20
+      connection-timeout: 30000
+      idle-timeout: 600000
+      keepaliveTime: 30000
+      max-lifetime: 1800000
+
+
+
+  application:
+    name: gen-mcp-server
+  main:
+    allow-bean-definition-overriding: true
+  
+  # MCP Server 配置
+  ai:
+    mcp:
+      server:
+        # 启用 MCP Server
+        enabled: true
+        # 禁用 STDIO 传输（Qoder 只支持 SSE）
+        stdio: false
+        # 服务器信息
+        name: continew-generator-mcp
+        version: 1.0.0
+        # 服务说明
+        instructions: "ContiNew Code Generator MCP Server - Provides tools for generating backend/frontend code and permission scripts"
+        # 服务类型 (SYNC: 同步模式)
+        type: SYNC
+        # 自动转换 ToolCallback 为 MCP Tool
+        tool-callback-converter: true
+        # 注解扫描配置
+        annotation-scanner:
+          enabled: true
+        # 服务能力配置
+        capabilities:
+          tool: true
+          resource: true
+          prompt: true
+          completion: true
+        # 变更通知
+        resource-change-notification: true
+        tool-change-notification: true
+        prompt-change-notification: true
+        # SSE 配置（使用默认路径进行测试）
+        sse-endpoint: /sse
+        sse-message-endpoint: /mcp/message
+
+# 服务端口
+server:
+  port: 8091
+  # Tomcat 配置
+  tomcat:
+    connection-timeout: 120000
+    keep-alive-timeout: 90000
+    max-keep-alive-requests: 100
+  # 错误处理
+  error:
+    whitelabel:
+      enabled: false
+
+# 日志配置
+logging:
+  level:
+    root: INFO
+    top.continew.admin.mcp: DEBUG
+    org.springframework.ai.mcp: DEBUG
+    org.springframework.ai.tool: DEBUG
+    # 降低 MCP 连接相关的日志级别，避免大量警告
+    io.modelcontextprotocol.util.KeepAliveScheduler: WARN
+    io.modelcontextprotocol.server.transport: WARN
+    # 降低 Tomcat 连接错误日志
+    org.apache.catalina.connector: WARN
+    org.apache.coyote: WARN
+
+# 关闭租户扩展（gen-mcp 仅作为工具服务，不启用多租户）
+continew-starter:
+  tenant:
+    enabled: false
