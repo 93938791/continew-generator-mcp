@@ -68,7 +68,7 @@ mvn clean package -DskipTests
 java -jar target/continew-generator-mcp-1.0.0.jar
 ```
 
-服务默认运行在 `http://localhost:3000`
+服务默认运行在 `http://localhost:8091`
 
 #### 4. 配置 AI 客户端
 
@@ -78,7 +78,7 @@ java -jar target/continew-generator-mcp-1.0.0.jar
 {
   "mcpServers": {
     "continew-generator": {
-      "url": "http://localhost:3000/sse"
+      "url": "http://localhost:8091/sse"
     }
   }
 }
@@ -253,6 +253,8 @@ This project is licensed under the [Apache License 2.0](LICENSE).
 
 <div align="center">
 
-**Made with ❤️ by ContiNew Team**
+**基于 [ContiNew](https://github.com/continew-org/continew-admin) 项目打造**
+
+[![GitHub](https://img.shields.io/badge/GitHub-continew--admin-blue?logo=github)](https://github.com/continew-org/continew-admin)
 
 </div>
