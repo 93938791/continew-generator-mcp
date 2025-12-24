@@ -78,7 +78,9 @@ java -jar target/continew-generator-mcp-1.0.0.jar
 {
   "mcpServers": {
     "continew-generator": {
-      "url": "http://localhost:8091/sse"
+      "url": "http://localhost:8091/sse",
+      "transport": "sse",
+      "timeout": 90000
     }
   }
 }
@@ -239,7 +241,9 @@ For Cursor, add to MCP configuration:
 {
   "mcpServers": {
     "continew-generator": {
-      "url": "http://localhost:3000/sse"
+      "url": "http://localhost:8091/sse",
+      "transport": "sse",
+      "timeout": 90000
     }
   }
 }

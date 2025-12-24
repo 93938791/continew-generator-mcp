@@ -1505,6 +1505,51 @@ validateGeneratedCode(...)         →  验证生成的代码
         sb.append("   - 查询参数后缀 `Query`\n");
         sb.append("6. **校验注解**: 使用 Jakarta Validation (`@NotBlank`, `@NotNull`, `@Size` 等)\n");
         
+        // 字典与枚举规范
+        sb.append("\n### 字典与 @DictModel 使用规范\n");
+        sb.append("当字段使用字典时（如 status、type 等），前端会通过 `useDict('dictCode')` 获取字典数据。\n");
+        sb.append("字典来源有两种，必须确保至少一种配置正确，否则会报错 **'请添加并配置 @DictModel 字典结构信息'**：\n\n");
+        sb.append("#### 1. 系统字典（sys_dict 表）\n");
+        sb.append("- 适用场景：字典项可能动态变化、需要后台管理的场景\n");
+        sb.append("- 配置方式：在系统管理-字典管理中添加字典及字典项\n");
+        sb.append("- 调用 `listDicts()` 可查看已有的系统字典\n\n");
+        sb.append("#### 2. 枚举字典（@DictModel 注解）\n");
+        sb.append("- 适用场景：字典项固定不变、与业务逻辑强绑定的场景\n");
+        sb.append("- 配置方式：创建枚举类并添加 `@DictModel` 注解\n\n");
+        sb.append("**枚举类示例：**\n");
+        sb.append("```java\n");
+        sb.append("package top.continew.admin.common.enums;\n\n");
+        sb.append("import lombok.Getter;\n");
+        sb.append("import lombok.RequiredArgsConstructor;\n");
+        sb.append("import top.continew.starter.core.dict.annotation.DictModel;\n");
+        sb.append("import top.continew.starter.core.enums.BaseEnum;\n\n");
+        sb.append("/**\n");
+        sb.append(" * 状态枚举\n");
+        sb.append(" */\n");
+        sb.append("@Getter\n");
+        sb.append("@RequiredArgsConstructor\n");
+        sb.append("@DictModel(\"status_enum\")  // 字典编码，前端 useDict('status_enum') 使用\n");
+        sb.append("public enum StatusEnum implements BaseEnum<Integer> {\n\n");
+        sb.append("    ENABLED(1, \"启用\"),\n");
+        sb.append("    DISABLED(0, \"禁用\");\n\n");
+        sb.append("    private final Integer value;\n");
+        sb.append("    private final String description;\n");
+        sb.append("}\n");
+        sb.append("```\n\n");
+        sb.append("#### 判断规则\n");
+        sb.append("| 场景 | 推荐方式 | 说明 |\n");
+        sb.append("|------|---------|------|\n");
+        sb.append("| 通用状态（启用/禁用） | 系统字典 `sys_status` | 已内置，直接使用 |\n");
+        sb.append("| 性别（男/女） | 系统字典 `sys_gender` | 已内置，直接使用 |\n");
+        sb.append("| 业务特有状态/类型 | 枚举 + @DictModel | 如订单状态、审核状态 |\n");
+        sb.append("| 可能变化的分类 | 系统字典 | 如商品分类、标签 |\n\n");
+        sb.append("#### 常见错误排查\n");
+        sb.append("如果出现 '请添加并配置 @DictModel 字典结构信息' 错误：\n");
+        sb.append("1. 检查前端代码中 `useDict('xxx')` 的 xxx 是否正确\n");
+        sb.append("2. 确认 sys_dict 表中是否存在该字典编码\n");
+        sb.append("3. 如果是枚举字典，确认枚举类是否添加了 `@DictModel` 注解\n");
+        sb.append("4. 确认枚举类是否实现了 `BaseEnum` 接口\n");
+        
         log.info("后端代码规范获取完成（从模板读取）");
         return sb.toString();
     }
@@ -1621,17 +1666,24 @@ validateGeneratedCode(...)         →  验证生成的代码
             // 字典信息
             if (ctx.isHasDictField()) {
                 sb.append("\n### 字典字段\n");
+                sb.append("以下字段使用了字典，前端会通过 `useDict('dictCode')` 获取字典数据：\n\n");
                 for (FieldConfig field : fields) {
                     if (field.getDictCode() != null && !field.getDictCode().isBlank()) {
                         sb.append("- `").append(field.getFieldName()).append("`: 使用字典 `").append(field.getDictCode()).append("`\n");
                     }
                 }
+                sb.append("\n**重要提示**：如果出现 '请添加并配置 @DictModel 字典结构信息' 错误，请检查：\n");
+                sb.append("1. 调用 `listDicts()` 确认 sys_dict 表中是否存在该字典编码\n");
+                sb.append("2. 如果字典不存在，需要二选一：\n");
+                sb.append("   - 在系统管理-字典管理中添加字典\n");
+                sb.append("   - 创建枚举类并添加 `@DictModel` 注解（详见 `getBackendSpecification`）\n");
             }
             
             // 提示调用其他工具获取更多信息
             sb.append("\n### 下一步\n");
             sb.append("- 调用 `getFrontendSpecification` 获取完整的前端代码规范和模板\n");
             sb.append("- 调用 `getProjectPaths` 查看代码生成路径配置\n");
+            sb.append("- 调用 `listDicts()` 查看系统已有字典\n");
             
             log.info("API 信息获取完成");
             return sb.toString();
